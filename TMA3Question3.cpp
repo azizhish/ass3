@@ -62,6 +62,14 @@ public:
 		cout << "x: " << x_coord << ", y: " << y_coord << endl;
 	}
 
+	double get_x(){
+		return x_coord;
+	}
+
+	double get_y(){
+		return y_coord;
+	}
+
 };
 
 ostream& operator<<(ostream& os, const Point& p) {
@@ -72,12 +80,113 @@ ostream& operator<<(ostream& os, const Point& p) {
 	The main method. Used here to test the functionality of the Text Class
  */
 
+class Shape{
+protected: string type;
+public:
+	Shape(): type("Generic"){}
+
+	virtual double area(){
+		return 0.0;
+	}
+
+	double circumference(){
+		return 1.0;
+	}
+
+	void display(){
+		cout << "Type: " << type << endl;
+		cout << "Area: " << area() << endl;
+		cout << "Circumference: " << circumference() << endl;
+	}
+
+};
+
+class Circle: public Shape{
+	Point center;
+	double radius; // need to ensure this is positive and > 0
+public:	
+	Circle(Point c, double r): Shape(), center(c), radius(r){
+		// assure(radius>0);
+		type = "Circle";
+	}
+
+	double area(){
+		return radius * radius * 3.14;
+	}
+
+	double circumference(){
+		return 2 * radius * 3.14;
+	}
+};
+
+class Square: public Shape{
+	Point v1, v2, v3, v4;
+public:
+	Square(Point p1, Point p2, Point p3, Point p4):
+		Shape(), v1(p1), v2(p2), v3(p3), v4(p4)
+	{
+		if (!is_square()){
+			cout << "Not a sqaure" << endl;
+			exit(1);
+		}
+		type = "Square";
+	}
+
+
+private:
+
+	double dis_sq(Point p1, Point p2){
+		return (p2.get_x() - p1.get_x()) * (p2.get_x() - p1.get_x()) + 
+			(p2.get_y() - p1.get_y()) * (p2.get_y() - p1.get_y());
+		}
+
+	//Basis is that a point in a sqaure is equidistant from two other points
+	//And the remaining point forms a diagonal/side of a right angle triangle
+	bool is_square(){
+		double v1_v2 = dis_sq(v1, v2);
+		double v1_v3 = dis_sq(v1, v3);
+		double v1_v4 = dis_sq(v1, v4);
+		double v2_v3 = dis_sq(v2, v3);
+		double v3_v4 = dis_sq(v3, v4);
+		double v2_v4 = dis_sq(v2, v4);
+
+		//If v1 is adjacent to v2 and v3 then v1-->v2 == v1-->v3 = (X)
+		//And (X) + (X) = v1-->v4 = v2-->v3
+		if(v1_v2 == v1_v3){
+			return (v1_v4 == v2_v3) && (v1_v4 == 2 * v1_v2);
+		}
+
+		//Case 2, v1 is next to v3 and v4 and accross from v2
+		if(v1_v4 == v1_v3){
+			return (v1_v2 == v3_v4) && (v1_v2 == 2 * v1_v4);
+		}
+
+		//The only remaining case
+		if (v1_v4 == v1_v2){
+			return (v1_v3 == v2_v4) && (v1_v3 == 2 * v1_v4);
+		}
+
+		//V1 is not equidistant from any two points from within 
+		//V2, V3 or V4, hence the points cannot form a square
+		return false;
+	}
+
+	double min_point(){
+		double result;
+		result = min(v1.get_x(), v2.get_x());
+		result = min(result, v3.get_x());
+		result = min(result, v4.get_x());
+		return result;
+	}
+
+};
+
+
+
+
 int main(int argc, char const *argv[])
 {
-	Point p(1.0, 2.5);
-	Point q(2.0, 3.5);
-	Point temp = p + q;
-	temp.print();
-	cout << temp;
+	Square s(Point(1,0), Point(0, 0), Point(0,1), Point(1,1));
+	s.display();
 	return 0;
 }
