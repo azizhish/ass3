@@ -51,6 +51,7 @@ class Point{
 	double x_coord;
 	double y_coord;
 public:
+	Point(){}
 	Point(double x, double y) : x_coord(x), y_coord(y) {}
 
 	const Point operator+(const Point& other) const {
@@ -72,6 +73,11 @@ public:
 
 };
 
+struct Bounding_Box{
+		Point min;
+		Point max;
+};
+
 ostream& operator<<(ostream& os, const Point& p) {
 	os << p.x_coord << ", " << p.y_coord;
 	return os;
@@ -81,7 +87,9 @@ ostream& operator<<(ostream& os, const Point& p) {
  */
 
 class Shape{
-protected: string type;
+protected: 
+	string type;
+	Bounding_Box box;
 public:
 	Shape(): type("Generic"){}
 
@@ -89,7 +97,9 @@ public:
 		return 0.0;
 	}
 
-	double circumference(){
+	
+
+	virtual double circumference(){
 		return 1.0;
 	}
 
@@ -97,6 +107,8 @@ public:
 		cout << "Type: " << type << endl;
 		cout << "Area: " << area() << endl;
 		cout << "Circumference: " << circumference() << endl;
+		cout << "Bounding Box Coordinates: Min: "
+			<< box.min << " Max: " << box.max << endl;
 	}
 
 };
@@ -119,6 +131,14 @@ public:
 	}
 };
 
+/*
+	The derived class Square: derived from Shape
+	Constructor takes four points but only initializes the object
+	if the four points forms a sqaure. Invalid arguments result in 
+	exit(1) from whereever the code is run with an appropriate message
+	to standard output. 
+*/
+
 class Square: public Shape{
 	Point v1, v2, v3, v4;
 public:
@@ -134,6 +154,13 @@ public:
 
 
 private:
+
+	void set_bounding(){
+		Point min_p = min_point();
+		Point max_p = max_point();
+		box.min = min_p;
+		box.max = max_p;
+	}
 
 	double dis_sq(Point p1, Point p2){
 		return (p2.get_x() - p1.get_x()) * (p2.get_x() - p1.get_x()) + 
@@ -171,14 +198,27 @@ private:
 		return false;
 	}
 
-	double min_point(){
-		double result;
-		result = min(v1.get_x(), v2.get_x());
-		result = min(result, v3.get_x());
-		result = min(result, v4.get_x());
-		return result;
+	Point min_point(){
+		double x, y;
+		x = min(v1.get_x(), v2.get_x());
+		x = min(x, v3.get_x());
+		x = min(x, v4.get_x());
+		y = min(v1.get_y(), v2.get_y());
+		y = min(y, v3.get_y());
+		y = min(y, v4.get_y());
+		return Point(x,y);
 	}
 
+	Point max_point(){
+		double x, y;
+		x = max(v1.get_x(), v2.get_x());
+		x = max(x, v3.get_x());
+		x = max(x, v4.get_x());
+		y = max(v1.get_y(), v2.get_y());
+		y = max(y, v3.get_y());
+		y = max(y, v4.get_y());
+		return Point(x,y);
+	}
 };
 
 
